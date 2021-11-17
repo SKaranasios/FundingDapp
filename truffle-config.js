@@ -1,5 +1,7 @@
 
 module.exports = {
+  //changing contracts directory in order to access them in browser
+  contracts_build_directory : "./public/contracts",
 
 
   networks: {
@@ -14,7 +16,7 @@ module.exports = {
 
 
 
-  // Configure your compilers
+  // Configure your compilerss
   compilers: {
     solc: {
       version: "0.8.9",    // Fetch exact version from solc-bin (default: truffle's version)

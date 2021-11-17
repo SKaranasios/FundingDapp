@@ -24,6 +24,20 @@ function App() {
 
   const[account,setAccount] = useState(null)
 
+  const[Reload , doReload] = useState(false)
+
+
+  const reloadEffect = useCallback(
+    () => {
+      doReload(!Reload)
+    },
+    [Reload]
+  )
+
+  const setAccountListener =(provider) => {
+    provider.on("accountsChanged", (accounts) =>setAccount(accounts[0]))
+  }
+
   
   
   useEffect(() => 
@@ -37,9 +51,12 @@ function App() {
       //console.log(window.web3)
       //console.log(window.ethereum)
       const provider = await detectEthereumProvider() 
+      //getting instance of deployed cotnract
       const { contract } = await loadContract("Funding",provider)
 
       if(provider){
+        //reload every time account changes
+        setAccountListener(provider)
         //using request in button to connect for bettet ui
         //provider.request({method:"eth_requestAccounts"})
         setWeb3Api({
@@ -54,7 +71,8 @@ function App() {
       }
 
 
-      /*if(window.ethereum){
+      /*
+      if(window.ethereum){
         provider = window.ethereum
         try{
           //ethereum enable is deprecated 
@@ -91,12 +109,15 @@ function App() {
       const balance = await web3.eth.getBalance(contract.address)
       //fromWei to show balance in ETH
       setBalance(web3.utils.fromWei(balance , "ether"))
+  
     }
 
     //checking if we have a contract
 
     web3Api.contract && loadBalance()
-  }, [web3Api])
+
+    //when should reload will be changed, so every time addFUnds executes
+  }, [web3Api,Reload])
 
 
   //need to use this function only when web3api is initialized
@@ -121,7 +142,24 @@ function App() {
       from: account,
       value: web3.utils.toWei("1","ether")
     })
-  } , [web3Api,account])
+    //reloads browser
+    //window.location.reload()
+
+    //each time this executes dorealod use state changes
+    reloadEffect()
+
+  } , [web3Api,account,reloadEffect])
+
+  const withdraw = 
+    async () => {
+      const {contract , web3 } = web3Api
+      const withdrawAmmount = web3.utils.toWei("0.1","ether")
+      await contract.withdraw(withdrawAmmount,{
+        from:account ,
+      })
+      reloadEffect()
+    }
+  
 
 
   return (
@@ -145,7 +183,7 @@ function App() {
             Current Balance: <strong>{balance}</strong> ETH
           </div>
           <button className="button is-link  mx-3 is-medium" onClick={addFunds}>Donate</button>
-          <button className="button is-primary is-medium  ">Withdraw</button>
+          <button className="button is-primary is-medium  " onClick={withdraw}>Withdraw</button>
         </div>
       </div>
   );

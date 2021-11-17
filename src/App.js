@@ -1,9 +1,10 @@
 //import logo from './logo.svg';
 import './App.css';
-import React, { useEffect, useState, /*useState*/ } from "react";
+import React, { useEffect, useState,useCallback /*useState*/ } from "react";
 import Web3 from 'web3';
-import detectEthereumProvider from '@metamask/detect-provider'
+import detectEthereumProvider from '@metamask/detect-provider';
 import { loadContract } from './utils/load-contract';
+
 
 
 function App() {
@@ -22,6 +23,8 @@ function App() {
 
 
   const[account,setAccount] = useState(null)
+
+  
   
   useEffect(() => 
   {
@@ -83,9 +86,11 @@ function App() {
   useEffect(()=>{
       const loadBalance = async () => {
         //in contract i have address with web3 i can make requests to the network
+        //load contract ,web3 from web3Api syntax
       const { contract ,web3 } = web3Api
       const balance = await web3.eth.getBalance(contract.address)
-      setBalance(balance)
+      //fromWei to show balance in ETH
+      setBalance(web3.utils.fromWei(balance , "ether"))
     }
 
     //checking if we have a contract
@@ -109,6 +114,15 @@ function App() {
 
   console.log(web3Api)
 
+  const addFunds =useCallback (async () => {
+    //syntax for loading from web3Api
+    const {contract ,web3} = web3Api
+    await contract.addFunds({
+      from: account,
+      value: web3.utils.toWei("1","ether")
+    })
+  } , [web3Api,account])
+
 
   return (
     
@@ -130,7 +144,7 @@ function App() {
           <div className="balance-view is-size-2 mb-4">
             Current Balance: <strong>{balance}</strong> ETH
           </div>
-          <button className="button is-link  mx-3 is-medium">Donate</button>
+          <button className="button is-link  mx-3 is-medium" onClick={addFunds}>Donate</button>
           <button className="button is-primary is-medium  ">Withdraw</button>
         </div>
       </div>

@@ -2,7 +2,7 @@
 import './App.css';
 import React, { useEffect, useState, /*useState*/ } from "react";
 import Web3 from 'web3';
-
+import detectEthereumProvider from '@metamask/detect-provider'
 
 
 function App() {
@@ -15,6 +15,8 @@ function App() {
     web3 : null
   })
 
+
+  const[account,setAccount] = useState(null)
   
   useEffect(() => 
   {
@@ -26,11 +28,26 @@ function App() {
 
       //console.log(window.web3)
       //console.log(window.ethereum)
-      let provider = null
-      if(window.ethereum){
+      const provider = await detectEthereumProvider() 
+
+      if(provider){
+        provider.request({method:"eth_requestAccounts"})
+        setWeb3Api({
+          web3: new Web3(provider),
+          provider
+        })
+      }
+      else{
+        console.error("Please,install metamask.")
+      }
+
+
+      /*if(window.ethereum){
         provider = window.ethereum
         try{
-          await provider.enable();
+          //ethereum enable is deprecated 
+          //await provider.enable();
+          await provider.request({method:"eth_requestAccounts"})
         }
         catch{
           console.error("User denied accont access")
@@ -42,11 +59,9 @@ function App() {
       else if (!process.env.production){
         provider = new Web3.providers.HttpProvider("http://127.0.0.1:7545")
       }
+      */
 
-      setWeb3Api({
-        web3: new Web3(provider),
-        provider
-      })
+      
 
     }
 
@@ -56,6 +71,20 @@ function App() {
     //if it's empty nothing to change
   } , [])
 
+
+  //need to use this function only when web3api is initialized
+  useEffect(()=> {
+    const getAccount = async() =>{
+      const accounts = await web3Api.web3.eth.getAccounts()
+      //want to extract from here one account so will save to state
+      setAccount(accounts[0])
+    }
+
+    //only wehn web3api intialized
+    web3Api.web3 && getAccount()
+  
+  }, [web3Api.web3])
+
   console.log(web3Api)
 
 
@@ -63,12 +92,16 @@ function App() {
     <>
       <div className="faucet-wrapper">
         <div className="faucet">
+          <span> 
+            <strong>Account:</strong>
+          </span>
+          <h1>
+            {account ? account:"not connected"}
+          </h1>
+
           <div className="balance-view is-size-2">
             Current Balance: <strong>10</strong> ETH
           </div>
-
-          
-
           <button className="btn mr-2">Donate</button>
           <button className="btn">Withdraw</button>
         </div>

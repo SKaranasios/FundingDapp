@@ -6,7 +6,7 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import { loadContract } from './utils/load-contract';
 
 
-
+//react used hooks , jsx expession
 function App() {
 
   //use this state to display information inside render function
@@ -16,7 +16,8 @@ function App() {
     provider : null ,
     web3 : null ,
     //reference of contract
-    contract : null
+    contract : null ,
+    isProviderLoaded:false
   })
 
   const [balance,setBalance]= useState(null)
@@ -35,7 +36,11 @@ function App() {
   )
 
   const setAccountListener =(provider) => {
-    provider.on("accountsChanged", (accounts) =>setAccount(accounts[0]))
+    //provider.on("accountsChanged", (accounts) =>setAccount(accounts[0]))
+    //ux imporvement when locking and changing account instant refresh
+    provider.on("accountsChanged", _ => window.location.reload())
+
+    
   }
 
   
@@ -51,10 +56,11 @@ function App() {
       //console.log(window.web3)
       //console.log(window.ethereum)
       const provider = await detectEthereumProvider() 
-      //getting instance of deployed cotnract
-      const { contract } = await loadContract("Funding",provider)
+    
 
       if(provider){
+         //getting instance of deployed cotnract
+        const { contract } = await loadContract("Funding",provider)
         //reload every time account changes
         setAccountListener(provider)
         //using request in button to connect for bettet ui
@@ -63,10 +69,14 @@ function App() {
           web3: new Web3(provider),
           provider ,
           //loading contract
-          contract
+          contract,
+          isProviderLoaded:true
         })
       }
       else{
+        setWeb3Api({
+          ...web3Api , isProviderLoaded:true
+        })
         console.error("Please,install metamask.")
       }
 
@@ -99,7 +109,7 @@ function App() {
 
     //array of dependencies , only run when something changes
     //if it's empty nothing to change
-  } , [])
+  } , [web3Api])
 
   useEffect(()=>{
       const loadBalance = async () => {
@@ -162,23 +172,41 @@ function App() {
   
 
 
-  return (
-    
+    return (
+//jsx expession account ? means if you dont have an account | account ? :  | if(true) then 
+//ux improvement if isProvided loaded then show accounnt --to avoid showing install metamask prompt on one instant showing when laoding provider
       <div className="faucet-wrapper">
         <div className="faucet">
-          <span> 
-            <strong>Account:</strong>
-          </span>
-          <h1>          
-            {account ? account:
-            <button className= "button is-normal"
-            onClick={() =>
-              web3Api.provider.request({method: "eth_requestAccounts"}
-            )}> 
-              Connect Wallet
-             </button>
-            }
-          </h1>
+         {
+           web3Api.isProviderLoaded ?
+           <div className="is-align is-alight-items-center">
+            <span> 
+              <strong>Account:</strong>
+            </span>
+                      
+                {account ? 
+                <div>{account}</div>:
+                !web3Api.provider ? 
+                <>
+                  <div className="notification is-warning is-small is-rounded">
+                  Wallet is not connected!
+                    <a target="_blank" href="#">
+                      Install metamask
+                    </a>
+                  </div>
+                </>:
+                <button className="button is-normal"
+                    onClick={() => web3Api.provider.request({ method: "eth_requestAccounts" }
+                    )}>
+                    Connect Wallet
+                  </button>
+              }
+              </div>:
+                <span>Looking for web3</span>
+}
+
+          
+          
           <div className="balance-view is-size-2 mb-4">
             Current Balance: <strong>{balance}</strong> ETH
           </div>
@@ -190,3 +218,12 @@ function App() {
 }
 
 export default App;
+
+//ux improvements
+/* 
+account lock -- refresh account holder 
+no provider  -- prompt to install metamask
+--and if provider not loaded showing generic message looking for web3
+fix warnings
+check contract load
+*/

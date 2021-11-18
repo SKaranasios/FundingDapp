@@ -14,8 +14,13 @@ export const loadContract = async (name,provider) =>{
     _contract.setProvider(provider)
 
     //first need to deploy them to the network
-    const deployedContract = await _contract.deployed()
-
+    let deployedContract = null
+    try{
+    deployedContract = await _contract.deployed()
+    }
+    catch{
+        console.error("Connect to right network")
+    }
 
     return {
         //abstraction

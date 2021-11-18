@@ -43,6 +43,8 @@ function App() {
     
   }
 
+  const canConnecttoCOntract = web3Api.contract && account
+
   
   
   useEffect(() => 
@@ -210,8 +212,8 @@ function App() {
           <div className="balance-view is-size-2 mb-4">
             Current Balance: <strong>{balance}</strong> ETH
           </div>
-          <button className="button is-link  mx-3 is-medium" onClick={addFunds}>Donate</button>
-          <button className="button is-primary is-medium  " onClick={withdraw}>Withdraw</button>
+          <button disabled={!canConnecttoCOntract} className="button is-link  mx-3 is-medium" onClick={addFunds}>Donate</button>
+          <button disabled={!canConnecttoCOntract} className="button is-primary is-medium  " onClick={withdraw}>Withdraw</button>
         </div>
       </div>
   );
@@ -225,5 +227,5 @@ account lock -- refresh account holder
 no provider  -- prompt to install metamask
 --and if provider not loaded showing generic message looking for web3
 fix warnings
-check contract load
+check contract load -- showing error message when loading contract in another network etc Ropsten network
 */

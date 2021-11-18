@@ -39,6 +39,7 @@ function App() {
     //provider.on("accountsChanged", (accounts) =>setAccount(accounts[0]))
     //ux imporvement when locking and changing account instant refresh
     provider.on("accountsChanged", _ => window.location.reload())
+    provider.on("chainChanged", _ => window.location.reload())
 
     
   }
@@ -177,6 +178,7 @@ function App() {
     return (
 //jsx expession account ? means if you dont have an account | account ? :  | if(true) then 
 //ux improvement if isProvided loaded then show accounnt --to avoid showing install metamask prompt on one instant showing when laoding provider
+//can connect to contract requirement in buttons and prompt message
       <div className="faucet-wrapper">
         <div className="faucet">
          {
@@ -212,6 +214,12 @@ function App() {
           <div className="balance-view is-size-2 mb-4">
             Current Balance: <strong>{balance}</strong> ETH
           </div>
+          {
+            !canConnecttoCOntract &&
+            <i>
+              Connect to Ganache
+            </i>
+          }
           <button disabled={!canConnecttoCOntract} className="button is-link  mx-3 is-medium" onClick={addFunds}>Donate</button>
           <button disabled={!canConnecttoCOntract} className="button is-primary is-medium  " onClick={withdraw}>Withdraw</button>
         </div>

@@ -19,3 +19,6 @@ Functions of contract:
 ![Screenshot from 2021-11-18 12-58-54](https://user-images.githubusercontent.com/35309049/142403582-b110b3ec-7a46-44c2-a8b5-fb514d2a8efb.png)
 
 
+![Screenshot from 2021-11-18 13-04-10](https://user-images.githubusercontent.com/35309049/142403854-adf1ea05-6cdf-4436-a033-7952ea603e52.png)
+
+
